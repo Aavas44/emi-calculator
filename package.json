@@ -1,0 +1,28 @@
+{
+  "name": "reseller-a5it-cypress",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prettier": "prettier --write .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@faker-js/faker": "^9.8.0",
+    "cypress": "14.4.0",
+    "prettier": "^3.5.3",
+    "xlsx": "^0.18.5"
+  },
+  "dependencies": {
+    "chai": "^5.2.0",
+    "cypress-real-events": "^1.15.0",
+    "dotenv": "^16.5.0",
+    "faker": "^5.5.3",
+    "unzipper": "^0.12.3"
+  },
+  "prettier": {
+    "printWidth": 180
+  }
+}

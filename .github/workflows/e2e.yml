@@ -1,0 +1,69 @@
+name: End-to-end tests
+
+on:
+  push:
+    branches:
+      - main
+  repository_dispatch:
+    types:
+      - ui-deploy-completed
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to run tests against"
+        required: true
+        default: "staging"
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1]
+    env:
+      BASE_URL: ${{ secrets.BASE_URL }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Cypress tests (all specs on single runner)
+        uses: cypress-io/github-action@v6
+        with:
+          command: npx cypress run
+          wait-on: ${{ env.BASE_URL }}
+          wait-on-timeout: 60
+          record: true
+          parallel: true
+
+      - name: Upload Cypress artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-videos
+          path: cypress/videos
+          if-no-files-found: ignore
+
+  # Job to combine results from all parallel runs
+  test-results:
+    needs: cypress-run
+    runs-on: ubuntu-24.04
+    if: always()
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Combine test results
+        run: |
+          echo "All parallel test runs completed"
+          echo "Check individual job results for detailed information"
