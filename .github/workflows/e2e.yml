@@ -35,14 +35,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run Cypress tests (all specs on single runner)
+      - name: Run Cypress tests
         uses: cypress-io/github-action@v6
         with:
+          browser: chrome
           command: npx cypress run
           wait-on: ${{ env.BASE_URL }}
-          wait-on-timeout: 60
-          record: true
-          parallel: true
+          wait-on-timeout: 120
 
       - name: Upload Cypress artifacts
         if: always()

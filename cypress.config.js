@@ -11,6 +11,8 @@ module.exports = defineConfig({
     baseUrl: "https://emicalculator.net",
     testIsolation: false,
     downloadsFolder: "cypress/downloads",
+    viewportWidth: 1280,
+    viewportHeight: 720,
 
     setupNodeEvents(on, config) {
       const downloadsFolder = config.downloadsFolder;

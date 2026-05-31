@@ -31,9 +31,8 @@ const SLIDER_MAP = {
 
 // Physically drags the slider handle with real mouse events (cypress-real-events).
 // 1. Read min/max/step from the jQuery UI widget and compute the target value.
-// 2. Convert target value to an X position on the track (ratio × track width).
-// 3. mousedown on handle → small nudge → mousemove to target on track → mouseup.
-// One continuous drag is used because tiny per-step moves (~2–3 px) don't register reliably.
+// 2. Drag handle to the target position on the track.
+// 3. Fine-tune with arrow keys if headless CI lands a step off (common in GitHub Actions).
 Cypress.Commands.add("slideSlider", (field, value, steps = 1) => {
   const sliderSelector = SLIDER_MAP[field];
   const handleSelector = `${sliderSelector} > .ui-slider-handle`;
@@ -62,6 +61,7 @@ Cypress.Commands.add("slideSlider", (field, value, steps = 1) => {
       const targetY = Math.round(rect.height / 2);
 
       cy.get(handleSelector)
+        .scrollIntoView()
         .should("be.visible")
         .realMouseDown({ button: "left", position: "center", scrollBehavior: "nearest" })
         .realMouseMove(5, 0, { position: "center", scrollBehavior: "nearest" });
@@ -69,6 +69,23 @@ Cypress.Commands.add("slideSlider", (field, value, steps = 1) => {
       cy.get(sliderSelector)
         .realMouseMove(targetX, targetY, { position: "topLeft", scrollBehavior: "nearest" })
         .realMouseUp({ position: "topLeft", scrollBehavior: "nearest" });
+    });
+
+    cy.window().then((win) => {
+      const $slider = win.jQuery(sliderSelector);
+      const stepSize = $slider.slider("option", "step");
+      const currentValue = $slider.slider("value");
+      const stepsOff = Math.round((target - currentValue) / stepSize);
+
+      const nudgeWithArrowKeys = (remaining) => {
+        if (remaining === 0) return;
+
+        const key = remaining > 0 ? "ArrowRight" : "ArrowLeft";
+        cy.get(handleSelector).focus().realPress(key);
+        nudgeWithArrowKeys(remaining > 0 ? remaining - 1 : remaining + 1);
+      };
+
+      nudgeWithArrowKeys(stepsOff);
     });
   });
 
