@@ -1,0 +1,8 @@
+node_modules
+.env
+videos
+results/
+browserstack.json
+screenshots
+cypress.env.json
+downloads
