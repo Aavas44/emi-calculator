@@ -43,7 +43,6 @@ emi-calculator/
   - `setSlider` — sets the linked text input and fires `change` (fast, reliable for most tests).
   - `slideSlider` — drags the jQuery UI handle with real mouse events via `cypress-real-events` (validates actual slider UX).
 - **Formula-based assertions** — EMI, total interest, and total payment are calculated in test code and compared against the UI and Excel export, not hard-coded expected strings.
-- **Chart data via Highcharts API** — bar chart values are read from `window.Highcharts.charts` rather than scraping SVG pixels.
 - **Real Excel downloads** — the browser downloads the file to `cypress/downloads/`; a Node task parses it with the `xlsx` package for assertions.
 
 ### Environment configuration
@@ -51,7 +50,7 @@ emi-calculator/
 Runtime settings come from a `.env` file (loaded by `dotenv` in `cypress.config.js`):
 
 ```env
-BASE_URL=https://emicalculator.net/
+BASE_URL="Your env here"
 ```
 
 Copy the template before your first local run:
@@ -129,9 +128,6 @@ cp .env.example .env
 
 Edit `.env` and set `BASE_URL` to the target site:
 
-```env
-BASE_URL=https://emicalculator.net/
-```
 
 ### 3. Run tests locally
 
@@ -154,14 +150,6 @@ Then select **E2E Testing** → choose a browser → run `emi_caluculator.cy.js`
 ```bash
 npx cypress run --spec cypress/e2e/emi_caluculator.cy.js
 ```
-
-**Specific test by title:**
-
-```bash
-npx cypress run --spec cypress/e2e/emi_caluculator.cy.js --env grep="EMI formula"
-```
-
-> `slideSlider` uses `cypress-real-events` and requires a **Chromium-based browser** (Chrome or Edge).
 
 ### 4. Review artifacts
 
@@ -200,11 +188,3 @@ npx cypress open    # Open interactive test runner
 
 ---
 
-## Troubleshooting
-
-| Issue | Fix |
-|-------|-----|
-| `BASE_URL` is undefined | Ensure `.env` exists and contains `BASE_URL=...` |
-| Slider drag does not move | Run in Chrome/Edge; `cypress-real-events` does not work in Firefox |
-| Excel assertion fails | Check `cypress/downloads/` for the saved file; re-run the download test |
-| EMI off by ₹1 | Expected — site rounds displayed EMI but uses unrounded value for totals; helpers mirror this |
